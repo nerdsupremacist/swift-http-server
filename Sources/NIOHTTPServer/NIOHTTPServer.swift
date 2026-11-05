@@ -620,6 +620,7 @@ extension ServerBootstrap {
 
         let bootstrap = ServerBootstrap(group: listeningSocketGroup, childGroup: acceptedConnectionsGroup)
             .serverChannelOption(.socketOption(.so_reuseaddr), value: 1)
+            .serverChannelOption(.backlog, value: 4096)
             .serverChannelInitializer { channel in
                 channel.eventLoop.makeCompletedFuture {
                     try channel.pipeline.syncOperations.addHandler(
