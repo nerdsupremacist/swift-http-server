@@ -49,10 +49,12 @@ func connectUDPExample(
     var pendingToTarget: [UInt8] = []
 
     try await streamReader.read { buffer, _ in
+        pendingToTarget.reserveCapacity(pendingToTarget.count + buffer.count)
         for index in buffer.indices { pendingToTarget.append(buffer[index]) }
     }
 
     try await datagramReader.read { buffer, _ in
+        pendingToTarget.reserveCapacity(pendingToTarget.count + buffer.count)
         for index in buffer.indices { pendingToTarget.append(buffer[index]) }
     }
 

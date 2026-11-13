@@ -178,8 +178,10 @@ extension ByteBuffer {
     init<Buffer: RangeReplaceableContainer<UInt8> & ~Copyable>(
         draining buffer: inout Buffer
     ) where Buffer.Element: ~Copyable {
-        self.init()
-        self.reserveCapacity(buffer.count)
+        // Allocate at the final size up front. `ByteBuffer()` followed by `reserveCapacity` would first retain NIO's
+        // process-wide zero-capacity buffer (an atomic refcount shared by every event loop thread) and then take the
+        // copy-on-write path to replace it.
+        self = ByteBufferAllocator().buffer(capacity: buffer.count)
 
         var consumer = buffer.consumeAll()
         // `while !done { ... }` instead of `while true { ... break }` to dodge a SIL ownership-verifier crash on the

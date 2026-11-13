@@ -193,6 +193,9 @@ final class HTTPKeepAliveHandler: ChannelDuplexHandler {
                 )
             }
         case .buffering(let head, var additional):
+            // Drop the state's reference to `additional` before appending; otherwise the append copies the whole array
+            // every time and buffering n parts costs O(n^2).
+            self.finalResponseState = .streaming
             additional.append(BufferedWrite(part: part, promise: promise))
             self.finalResponseState = .buffering(head: head, additional: additional)
         case .streaming:
